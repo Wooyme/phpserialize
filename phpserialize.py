@@ -374,6 +374,8 @@ def dumps(data, charset='utf-8', errors=default_errors, object_hook=None):
                 return ('i:%s;' % obj).encode('latin1')
             if isinstance(obj, float):
                 return ('d:%s;' % obj).encode('latin1')
+            if isinstance(obj,range):
+                return ('r:%s;' % obj).encode('latin1')
             if isinstance(obj, basestring):
                 encoded_obj = obj
                 if isinstance(obj, unicode):
@@ -474,13 +476,15 @@ def load(fp, charset='utf-8', errors=default_errors, decode_strings=False,
         if type_ == b'n':
             _expect(b';')
             return None
-        if type_ in b'idb':
+        if type_ in b'idbr':
             _expect(b':')
             data = _read_until(b';')
             if type_ == b'i':
                 return int(data)
             if type_ == b'd':
                 return float(data)
+            if type_ == b'r':
+                return range(int(data))
             return int(data) != 0
         if type_ == b's':
             _expect(b':')
